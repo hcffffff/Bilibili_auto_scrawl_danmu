@@ -66,10 +66,9 @@ def generateTimeLine(bvstring):
     # 平滑处理
     smooth = scipy.signal.savgol_filter(timeline, window_len, 3)
 
-    l1 = plt.plot(xtime, timeline, '-', label = 'original', color = 'blue')
-    l2 = plt.plot(xtime, smooth, '-', label = 'smoothed', color = 'red')
-    plt.plot(xtime, timeline, 'b-',xtime, smooth, 'r-')
-    plt.title('Fantastic Timeline for {}'.format(bvstring))
+    plt.plot(xtime, timeline, '-', label = 'original', color = 'blue')
+    plt.plot(xtime, smooth, '-', label = 'smoothed', color = 'red')
+    plt.title('Fantasy Timeline for {}'.format(bvstring))
     plt.xlabel('timeline(s)')
     plt.ylabel('count')
     plt.legend()
@@ -86,9 +85,10 @@ def makeWordcloudForAll(string):
                       '有点','那么','你们','一样','还是',
                       '还有','已经','知道','是不是','那个',
                       '可以','不能','时候','感觉','这样',
-                      '好像','因为','现在','不要',''])
+                      '好像','因为','现在','不要','哈哈哈哈哈',
+                      '哈哈哈哈哈哈','为什么','了我','我们','下次'])
 
-    wc = WordCloud(font_path=str(sys.path[0])+'/simhei.ttf',stopwords=stopwords,background_color='white',max_font_size=50)
+    wc = WordCloud(font_path=str(sys.path[0])+'/simhei.ttf',stopwords=stopwords,collocations=False,background_color='white',max_font_size=50)
     wc.generate(string)
 
     plt.imshow(wc)         # 以图片的形式显示词云
