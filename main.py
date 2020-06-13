@@ -14,7 +14,7 @@ header = {
     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:45.0) Gecko/20100101 Firefox/45.0'
 }
 
-def get_danmuku(cid, filename, duration):
+def get_danmuku(cid, filename, duration): # 获取弹幕并写入文件
     try:
         danmuku_api = "https://api.bilibili.com/x/v1/dm/list.so?oid="
         r2 =requests.get(danmuku_api+cid, headers=header)
@@ -36,7 +36,7 @@ def get_danmuku(cid, filename, duration):
         print('写入弹幕错误:')
         print(e)
 
-def get_cid(BVorEP, is_ep):
+def get_cid(BVorEP, is_ep): # 获取标示码cid
     try:
         if is_ep:
             url = "https://www.bilibili.com/bangumi/play/" + BVorEP
@@ -46,6 +46,8 @@ def get_cid(BVorEP, is_ep):
             match_list = re.findall('"id":{}.*?"cid":\d*?,'\
                 .format(BVorEP.split('ep')[1]), r.text)
         else: match_list = re.findall('"cid":\d*?,', r.text)
+        if len(match_list) == 0:
+            return 0,0
         cid = match_list[0][match_list[0].index('cid')+5:-1]
         # 获取视频时长
         duration = int(re.findall('"duration":\d*?,',\
@@ -54,20 +56,26 @@ def get_cid(BVorEP, is_ep):
     except Exception as e:
         print('获得cid出错:')
         print(e)
+        print(is_ep)
         print(BVorEP)
+        print(match_list)
+        print(cid)
 
-def get_input_info():
+def get_input_info(): # 单独处理时获取输入信息
     BV = str(input("请输入想要爬取信息的BV或ep号，以BV或ep开头："))
     return BV
 
-def main(BVorEP):
+def main(BVorEP): # 引导函数，判断是否为连续剧
     is_ep = False
-    if str(BVorEP).find('ep') >= 0:
+    if str(BVorEP).find('ep') == 0:
         is_ep = True
     filename = str(sys.path[0])+'/temp_danmuku/{}.txt'.format(BVorEP)
     cid, duration = get_cid(BVorEP, is_ep)
+    if cid == 0:
+        return False
     # print(duration)
     get_danmuku(cid, filename, duration)
+    return True
     
 if __name__ == '__main__':
     # 清空文件夹
@@ -86,9 +94,9 @@ if __name__ == '__main__':
     for bvstring in rank_list[:]:
         print('开始第{num}个视频，还剩{remaining_num}个视频'\
             .format(num = i,remaining_num = video_num - i))
-        main(bvstring)
-        analyse.generateTimeLine(bvstring)
-        all_danmu_result_jieba += analyse.generateWordCloud(bvstring)
+        if main(bvstring): # 跳过连续剧(尚未找到合适方法分析网页)
+            analyse.generateTimeLine(bvstring)
+            all_danmu_result_jieba += analyse.generateWordCloud(bvstring)
         i += 1
 
     analyse.makeWordcloudForAll(all_danmu_result_jieba)
