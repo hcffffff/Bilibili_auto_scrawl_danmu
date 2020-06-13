@@ -45,7 +45,7 @@ def generateTimeLine(bvstring):
     text = open(file, 'r').readlines()[1:]
     timeList = []
     for line in text:
-        if line.find(',') >= 0:
+        if line.find(',') >= 0 and line.find(',') < 5:
             timeList.append(int((line.split(',',1)[0]).strip('\n').replace(' ','')))
         else: continue
     if timeList == None: # 如果弹幕信息为空
@@ -61,10 +61,13 @@ def generateTimeLine(bvstring):
     timeline = [0 for n in range(item+1)]
     for i in timeList:
         # 分组每个弹幕
-        timeline[int(i//item_duration)] += 1
+        temp = int(i//item_duration) #判断越界
+        if temp > item:
+            temp = item
+        timeline[temp] += 1
     xtime = [i*item_duration for i in range(item + 1)]
     # 平滑处理
-    smooth = scipy.signal.savgol_filter(timeline, window_len, 3)
+    smooth = scipy.signal.savgol_filter(timeline, window_len, 3 if window_len > 3 else window_len - 1)
 
     plt.plot(xtime, timeline, '-', label = 'original', color = 'blue')
     plt.plot(xtime, smooth, '-', label = 'smoothed', color = 'red')
